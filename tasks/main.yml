@@ -1,2 +1,12 @@
 ---
 # tasks file for mysql
+- name: Move the MySQL repo RPM
+  copy:
+    src: mysql-community-release-el7-5.noarch.rpm
+    dest: /tmp/mysql-community-release-el7-5.noarch.rpm
+
+- name: Install the MySQL repo RPM
+  sudo: yes
+  yum:
+    name: /tmp/mysql-community-release-el7-5.noarch.rpm
+    state: present
