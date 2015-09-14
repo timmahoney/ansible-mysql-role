@@ -1,12 +1,101 @@
 ---
 # tasks file for mysql
+- name: Install Requirements
+  tags:
+  - mysql
+  sudo: yes
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items: mysql_yum_requirements
+
 - name: Move the MySQL repo RPM
+  tags:
+  - mysql
   copy:
     src: mysql-community-release-el7-5.noarch.rpm
     dest: /tmp/mysql-community-release-el7-5.noarch.rpm
 
 - name: Install the MySQL repo RPM
+  tags:
+  - mysql
   sudo: yes
   yum:
     name: /tmp/mysql-community-release-el7-5.noarch.rpm
     state: present
+
+- name: Install the MySQL Server Packages
+  tags:
+  - mysql
+  sudo: yes
+  yum:
+    name: mysql-community-server
+    state: present
+
+- name: Generate the configuration file
+  tags:
+  - mysql
+  sudo: yes
+  template:
+    src: my.cnf.j2
+    dest: "{{ mysql_config_location }}/my.cnf"
+  notify: Restart MySQL
+
+- name: Start MySQL
+  tags:
+  - mysql
+  sudo: yes
+  service:
+    name: mysqld
+    state: started
+
+- name: Set the root password
+  tags:
+  - mysql
+  sudo: yes
+  mysql_user:
+    name: root
+    password: "{{ mysql_root_password }}"
+    priv: "*.*:ALL,GRANT"
+    state: present
+
+- name: Generate the root user mysql creds file
+  tags:
+  - mysql
+  sudo: yes
+  template:
+    src: mysql_credentials.cnf.j2
+    dest: "/root/.my.cnf"
+
+- name: Remove anonymous MySQL accounts
+  tags:
+  - mysql
+  sudo: yes
+  mysql_user:
+    name: ""
+    state: absent
+
+- name: Remove the test MySQL Database
+  tags:
+  - mysql
+  sudo: yes
+  mysql_db:
+    name: test
+    state: absent
+
+- name: Create MySQL Users
+  tags:
+  - mysql
+  - mysql_users
+  sudo: yes
+  mysql_user:
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+    name: "{{ item.0.name }}"
+    password: "{{ item.0.password }}"
+    host: "{{ item.1 }}"
+    priv: "{{ item.0.priv }}"
+    state: present
+  with_subelements:
+  - mysql_users
+  - host

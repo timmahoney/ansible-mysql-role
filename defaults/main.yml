@@ -1,4 +1,8 @@
 ---
 # defaults file for mysql
 mysql_data_location: /var/lib/mysql
+mysql_socket_location: "{{ mysql_data_location }}"
 mysql_config_location: /etc
+mysql_storage_engine: InnoDB
+mysql_root_password: 123
+mysql_users: []

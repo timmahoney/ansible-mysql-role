@@ -1,38 +1,59 @@
-Role Name
-=========
+MySQL
+=====
 
-A brief description of the role goes here.
+MySQL Role. Installs and configures MySQL 5.6
+
+MySQL on this vagrant box is configured with help from the excellent [MySQLTuner Perl](https://github.com/major/MySQLTuner-perl) script.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+None
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+Defaults are set like so:
+
+mysql_data_location: /var/lib/mysql
+mysql_socket_location: "{{ mysql_data_location }}"
+mysql_config_location: /etc
+mysql_storage_engine: InnoDB
+mysql_root_password: 123
+mysql_users: []
+
+Overridden:
+
+mysql_users:
+-
+  name: vagrant
+  password: vagrant
+  priv: "*.*:ALL,GRANT"
+  host:
+  - localhost
+  - 127.0.0.1
+  - 192.168.56.1
+
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+N/A
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+- hosts: servers
+  roles:
+     - mysql
 
 License
 -------
 
-BSD
+GPLv2
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Tim Mahoney
+https://www.timothymahoney.com
