@@ -59,6 +59,11 @@
     priv: "*.*:ALL,GRANT"
     state: present
 
+- name: Root creds
+  set_fact:
+    mysql_user: root
+    mysql_password: "{{ mysql_root_password }}"
+
 - name: Generate the root user mysql creds file
   tags:
   - mysql
@@ -66,6 +71,18 @@
   template:
     src: mysql_credentials.cnf.j2
     dest: "/root/.my.cnf"
+
+- name: Vagrant creds
+  set_fact:
+    mysql_user: vagrant
+    mysql_password: vagrant
+
+- name: Generate the vagrant user mysql creds file
+  tags:
+  - mysql
+  template:
+    src: mysql_credentials.cnf.j2
+    dest: "~/.my.cnf"
 
 - name: Remove anonymous MySQL accounts
   tags:
